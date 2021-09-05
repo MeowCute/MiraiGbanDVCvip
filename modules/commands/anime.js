@@ -1,60 +1,66 @@
+/**
+* @author ProCoderMew
+* @warn Do not edit code or edit credits
+*/
+
 module.exports.config = {
-	name: "anime",
-	version: "1.0.2",
-	hasPermssion: 0,
-	credits: "Mirai Team",
-	description: "Random lấy ảnh anime! (Safe For Work)",
-	commandCategory: "random-img",
-	usages: "[tag]",
+    name: "alime",
+    version: "1.1.3",
+    hasPermssion: 0,
+    credits: "ProCoderMew",
+    description: "alime sfw và cả alime nsfw :)",
+    commandCategory: "nsfw",
+    usages: "[tag]",
     cooldowns: 5,
-	dependencies: {
-        "request": "",
+    dependencies: {
+        "axios": "",
         "fs-extra": "",
         "path": ""
     }
 };
 
-module.exports.languages = {
-    "vi": {
-        "addTags": "=== Tất cả các tag của Anime ===\n%1"
-    },
-    "en": {
-        "addTags": "=== Anime's tags ===\n%1"
-    }
-}
+module.exports.onLoad = async function () {
+    const { resolve } = global.nodemodule["path"];
+    const { existsSync, readFileSync } = global.nodemodule["fs-extra"];
+    const { downloadFile } = global.utils;
+    const path = resolve(__dirname, 'cache', 'alime.json');
+    const url = "https://dev.meewmeew.info/Module-Miraiv2/data/alime.json";
 
-module.exports.getAnime = async function (type) {
     try {
-        const { readFileSync } = global.nodemodule["fs-extra"];
-        const { join } = global.nodemodule["path"];
-        const { getContent, downloadFile, randomString } = global.utils;
-        const animeData = JSON.parse(readFileSync(await global.utils.assets.data("ANIME")));
-        const dataImage = (await getContent(animeData[type])).data;
-        const urlImage = dataImage.data.response.url;
-        const ext = urlImage.substring(urlImage.lastIndexOf(".") + 1);
-        const string = randomString(5);
-        const path = join(__dirname, "cache", `${string}.${ext}`);
-        await downloadFile(urlImage, path);
-        return path;
-    } catch (e) { return console.log(e) };
-}
+        if (!existsSync(path)) await downloadFile(url, path);
+        const data = JSON.parse(readFileSync(path));
+        if (data.length == 0) await downloadFile(url, path);
+        return;
+    } catch { await downloadFile(url, path) };
+};
 
-module.exports.run = async function({ event, api, args, getText }) {
-    const { createReadStream, unlinkSync, readFileSync } = global.nodemodule["fs-extra"];
-    const { threadID, messageID } = event;
+module.exports.run = async function ({ event, api, args }) {
+    const { writeFileSync, createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
+    const { resolve } = global.nodemodule["path"];
+    const axios = global.nodemodule["axios"];
+    const { downloadFile } = global.utils;
+    const { threadID, senderID, messageID } = event;
 
-    const animeData = JSON.parse(readFileSync(await global.utils.assets.data("ANIME")));
-    
-    if (!animeData.hasOwnProperty(args[0])) {
-        var list = [];
-        Object.keys(animeData).forEach(endpoint => list.push(endpoint));
-        return api.sendMessage(getText("addTags", list.join(", ")), event.threadID, event.messageID);
-    }
+    const out = (msg, callback = function () { }) => api.sendMessage(msg, threadID, callback, messageID);    
+    const { sfw, nsfw } = require("./cache/alime.json");
+    var apiUrl;
 
-    else {
-        try {
-            const path = await this.getAnime(args[0]);
-            return api.sendMessage({ attachment: createReadStream(path) }, threadID,  function () { return unlinkSync(path) }, messageID);
-        } catch (e) { return console.log(e) };
+    if (!sfw.hasOwnProperty(args[0]) && !nsfw.hasOwnProperty(args[0])) {
+        var nsfwData = Object.keys(nsfw).join(", ");
+        var sfwData = Object.keys(sfw).join(", ");
+        return out("=== Sfw Tag ===\n" + sfwData + "\n\n=== Nsfw Tag ===\n" + nsfwData);
+    } else {
+        if (sfw.hasOwnProperty(args[0])) apiUrl = sfw[args[0]];
+        else if (nsfw.hasOwnProperty(args[0])) apiUrl = nsfw[args[0]];
+        const { data: apiData } = await axios.get(apiUrl);
+        const url = apiData.data.response.url;
+        const ext = url.split(".")[url.split(".").length - 1];
+        const path = resolve(__dirname, 'cache', `${args[0]}_${senderID}.${ext}`);
+        
+        await global.utils.downloadFile(url, path);
+
+        return out({
+            attachment: createReadStream(path)
+        },  function () { return unlinkSync(path) });        
     }
 };
