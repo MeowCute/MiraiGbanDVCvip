@@ -13,8 +13,8 @@ module.exports.run = async function({ api, event }) {
 	const { join } = global.nodemodule["path"];
 	const { threadID } = event;
 	if (event.logMessageData.addedParticipants.some(i => i.userFbId == api.getCurrentUserID())) {
-		api.changeNickname(`[ ${global.config.PREFIX} ] • ${(!global.config.BOTNAME) ? "BOT Của Yang đẹp trai" : global.config.BOTNAME}`, threadID, api.getCurrentUserID());
-		return api.sendMessage(`TRƯỜNG GIANG BOT Connected successfully! \nCảm ơn bạn đã sử dụng con bot này, chúc bạn sử dụng vui vẻ UwU <3`, threadID);
+		api.changeNickname(`[ ${global.config.PREFIX} ] • ${(!global.config.BOTNAME) ? "BOT Của Chiến đẹp trai" : global.config.BOTNAME}`, threadID, api.getCurrentUserID());
+		return api.sendMessage(`VŨ CHIẾN BOT Connected successfully! \nCảm ơn bạn đã sử dụng con bot này, chúc bạn sử dụng vui vẻ UwU <3`, threadID);
 	}
 	else {
 		try {
