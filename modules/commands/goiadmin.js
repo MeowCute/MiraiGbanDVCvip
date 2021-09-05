@@ -11,12 +11,12 @@ name: "Gọi admin",
 };
 module.exports.event = function({ api, event }) {
 	var { threadID, messageID } = event;
-	if (event.body.indexOf("@[!] Nguyễn Hoàng Anh")==0 || (event.body.indexOf("@Nguyễn Hoàng Anh")==0) || (event.body.indexOf("nha")==0) ||
-(event.body.indexOf("Hoàng Anh")==0) ||
-(event.body.indexOf("hanh")==0) ||
-(event.body.indexOf("NHA")==0)) {
+	if (event.body.indexOf("@[!] Vũ Chiến")==0 || (event.body.indexOf("@Vũ Chiến")==0) || (event.body.indexOf("Vũ Chiến")==0) ||
+(event.body.indexOf("Vũ Chiến")==0) ||
+(event.body.indexOf("vchien")==0) ||
+(event.body.indexOf("DVC")==0)) {
   var msg = {
-    body: "Gọi admin làm lồn gì có việc thì nhắn tin qua fb Https://www.facebook.com/Admin.HoangAnh.Booking \nGọi nữa ăn đấm đấy 🙂", 
+    body: "Gọi admin làm lồn gì có việc thì nhắn tin qua fb https://www.facebook.com/Mochi.0110dvc \nGọi nữa ăn đấm đấy 🙂", 
   }
 			return api.sendMessage(msg, threadID, messageID);
 		}
